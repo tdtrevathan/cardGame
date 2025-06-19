@@ -2,6 +2,7 @@
 
 local Card = require("src.core.card")
 local Deck = require("src.core.deck") -- We need this to deal cards
+local Hand = require("src.core.hand")
 local Utils = require("src.game.utils")
 
 --==============================================================================
@@ -36,7 +37,7 @@ end
 
 -- NEW FUNCTION: Draws the cards in the player's hand
 local function draw_hand(game_state)
-    if #game_state.hand == 0 then return end -- Don't draw if hand is empty
+    if game_state.hand == 0 then return end -- Don't draw if hand is empty
 
     local hand_y = love.graphics.getHeight() - 130 -- Position hand near the bottom
     local card_width = 70
@@ -95,16 +96,21 @@ function GameManager.handle_input(game_state, type, ...)
         -- VVV ADD THIS KEYPRESS TO DEAL A CARD VVV
         elseif key == "space" then
             if next_state.current_view == "playing" then
-                local dealt_card = Deck.deal_card(next_state.deck)
-                if dealt_card then
-                    -- Load the image when the card is dealt
-                    Card.load_image(dealt_card)
-                    -- Make sure the card is face up to be visible in the hand
-                    dealt_card.is_face_up = true
-                    table.insert(next_state.hand, dealt_card)
-                    print("Dealt card to hand: " .. Card.to_string(dealt_card) .. ". Deck has " .. Deck.count(next_state.deck) .. " cards left.")
+                if Hand.canDrawCard(next_state.hand) then
+                    local dealt_card = Deck.deal_card(next_state.deck)
+                    if dealt_card then
+                        -- Load the image when the card is dealt
+                        Card.load_image(dealt_card)
+                        -- Make sure the card is face up to be visible in the hand
+                        dealt_card.is_face_up = true
+                        table.insert(next_state.hand, dealt_card)
+                        print("Dealt card to hand: " .. Card.to_string(dealt_card) .. ". Deck has " .. Deck.count(next_state.deck) .. " cards left.")
+                    else
+                        print("Cannot deal, deck is empty!")
+                    end
                 else
-                    print("Cannot deal, deck is empty!")
+                    print("Hand size: " ..Hand.count(next_state.hand))
+                    print("Hand is full")
                 end
             end
         end

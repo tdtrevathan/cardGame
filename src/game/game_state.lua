@@ -3,11 +3,13 @@
 -- NOTE: We moved the Deck require to the top level of the module
 -- to ensure it's loaded correctly.
 local Deck = require("src.core.deck")
+local Hand = require("src.core.hand")
 local GameState = {}
 
 -- This function creates the initial state for the entire game.
 function GameState.create()
     local initial_deck = Deck.create()
+    local initial_hand = Hand.create()
     Deck.populate(initial_deck)
     Deck.shuffle(initial_deck)
 
@@ -16,7 +18,7 @@ function GameState.create()
         
         -- Game-specific data
         deck = initial_deck,
-        hand = {},
+        hand = initial_hand,
         board = {
             -- A 3x3 board, initialized to nil (empty)
             {{}, {}, {}, {}, {}},
