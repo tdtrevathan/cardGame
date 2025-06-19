@@ -59,8 +59,7 @@ function Card:draw(x, y)
             love.graphics.setColor(0.8, 0.8, 0.8) -- Light gray for card back/placeholder
             love.graphics.rectangle("fill", x, y, 70, 100) -- Placeholder card size
             love.graphics.setColor(0, 0, 0) -- Black for text
-            love.graphics.printf(self.rank .. "
-" .. self.suit, x + 5, y + 5, 60, "center")
+            love.graphics.printf(self.rank .. "" .. self.suit, x + 5, y + 5, 60, "center")
             -- print(string.format("Drawing placeholder for %s of %s at (%d, %d)", self.rank, self.suit, x, y))
         end
     else

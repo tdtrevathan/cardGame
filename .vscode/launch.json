@@ -1,0 +1,36 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "lua-local",
+            "request": "launch",
+            "name": "Debug Love",
+            "program": {
+                // Option A: If love.exe is in your system's PATH (recommended setup for general use)
+                "command": "love" 
+                // OR Option B: Explicitly provide the full path to love.exe
+                // "command": "C:/Program Files/LOVE/love.exe" // Use forward slashes or double backslashes
+            },
+            "args": [
+                ".", // This tells LÖVE to run the game in the current folder
+                "debug" // Argument for the debugger
+            ],
+            "cwd": "${workspaceFolder}" // Set the working directory to your project folder
+        },
+        {
+            "type": "lua-local",
+            "request": "launch",
+            "name": "Run Love (No Debug)",
+            "program": {
+                 // Option A: If love.exe is in your system's PATH
+                "command": "love"
+                // OR Option B: Explicitly provide the full path to love.exe
+                // "command": "C:/Program Files/LOVE/love.exe"
+            },
+            "args": [
+                "."
+            ],
+            "cwd": "${workspaceFolder}"
+        }
+    ]
+}
