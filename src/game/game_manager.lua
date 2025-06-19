@@ -21,8 +21,6 @@ local function draw_board(game_state)
     local grid_offset_x = (love.graphics.getWidth() - total_grid_width) / 2
     local grid_offset_y = (love.graphics.getHeight() - total_grid_height) / 2
 
-    print(num_cols)
-    print(num_rows)
     for r, row in ipairs(game_state.board) do
         for c, card_in_slot in ipairs(row) do
             local cell_x = grid_offset_x + (c - 1) * (cell_width + cell_margin)
@@ -52,7 +50,6 @@ function GameManager.draw(game_state)
     love.graphics.clear(0.2, 0.2, 0.2)
     
     if game_state.current_view == "playing" then
-        love.graphics.rectangle("line", 5, 5, 5, 5)
         draw_board(game_state)
     elseif game_state.current_view == "menu" then
         love.graphics.setColor(1, 1, 1)
