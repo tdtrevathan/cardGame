@@ -2,8 +2,8 @@
 
 function love.conf(t)
     t.window.title = "My Card Game"
-    t.window.width = 800
-    t.window.height = 600
+    t.window.width = 1200
+    t.window.height = 900
     t.window.resizable = false -- Window is not resizable
 
     -- For LÖVE 0.11.x and above, enable vsync like this:

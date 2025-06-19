@@ -13,7 +13,7 @@ local current_game_state
 
 function love.load()
     love.window.setTitle("My Card Game")
-    love.window.setMode(800, 600, {resizable=false, vsync=true})
+    love.window.setMode(1200, 900, {resizable=false, vsync=true})
 
     -- Create the initial game state. This is the only time we "create" state.
     current_game_state = GameState.create()

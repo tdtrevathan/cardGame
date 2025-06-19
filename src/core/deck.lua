@@ -1,6 +1,6 @@
 -- MyCardGame/src/core/deck.lua
 
-local Card = require("src.cards.card")
+local Card = require("src.core.card")
 
 local Deck = {}
 
