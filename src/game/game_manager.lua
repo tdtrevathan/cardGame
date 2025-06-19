@@ -1,38 +1,68 @@
 -- MyCardGame/src/game/game_manager.lua
 
+local Card = require("src.cards.card")
+
+--==============================================================================
+-- Private Helper Functions
+--==============================================================================
+local function draw_board(game_state)
+    if not game_state.board or #game_state.board == 0 then
+        return -- Exit if there's no board to draw
+    end
+
+    local cell_width = 90
+    local cell_height = 120
+    local cell_margin = 15
+
+    local num_rows = #game_state.board
+    local num_cols = #game_state.board[1]
+    local total_grid_width = (num_cols * cell_width) + ((num_cols - 1) * cell_margin)
+    local total_grid_height = (num_rows * cell_height) + ((num_rows - 1) * cell_margin)
+    local grid_offset_x = (love.graphics.getWidth() - total_grid_width) / 2
+    local grid_offset_y = (love.graphics.getHeight() - total_grid_height) / 2
+
+    print(num_cols)
+    print(num_rows)
+    for r, row in ipairs(game_state.board) do
+        for c, card_in_slot in ipairs(row) do
+            local cell_x = grid_offset_x + (c - 1) * (cell_width + cell_margin)
+            local cell_y = grid_offset_y + (r - 1) * (cell_height + cell_margin)
+           -- if card_in_slot then
+            --    Card.draw(card_in_slot, cell_x, cell_y)
+            --else
+                love.graphics.setColor(1, 1, 1, 0.2)
+                -- THE ONLY CHANGE IS HERE: Removed the last two arguments for rounded corners.
+                love.graphics.rectangle("line", cell_x, cell_y, cell_width, cell_height, 5, 5)
+            --end
+        end
+    end
+    love.graphics.setColor(1, 1, 1)
+end
+
+--==============================================================================
+-- Public GameManager Module
+--==============================================================================
 local GameManager = {}
 
--- The update function now takes the current state and returns the next state.
 function GameManager.update(game_state, dt)
-    local next_state = game_state -- Start with the current state
-
-    if next_state.current_view == "playing" then
-        -- game_logic_update(next_state, dt)
-    elseif next_state.current_view == "menu" then
-        -- menu_logic_update(next_state, dt)
-    end
-    
-    -- It's crucial to return the state, even if it hasn't changed.
-    return next_state
+    return game_state
 end
 
--- The draw function takes the current state and renders it.
 function GameManager.draw(game_state)
-    -- Clear the screen
-    love.graphics.clear(0.2, 0.2, 0.2) -- Dark gray
+    love.graphics.clear(0.2, 0.2, 0.2)
     
-    love.graphics.setColor(1, 1, 1) -- White
-    love.graphics.print("Welcome to My Card Game!", love.graphics.getWidth()/2 - 100, love.graphics.getHeight()/2 - 10)
-    love.graphics.print("Current View: " .. game_state.current_view, 10, 10)
-
     if game_state.current_view == "playing" then
-        -- draw_game_elements(game_state)
+        love.graphics.rectangle("line", 5, 5, 5, 5)
+        draw_board(game_state)
     elseif game_state.current_view == "menu" then
-        -- draw_menu_elements(game_state)
+        love.graphics.setColor(1, 1, 1)
+        love.graphics.print("Welcome to My Card Game!", love.graphics.getWidth()/2 - 100, love.graphics.getHeight()/2 - 10)
     end
+    
+    love.graphics.setColor(1, 1, 1)
+    love.graphics.print("Current View: " .. game_state.current_view .. " (Press 'p' for playing, 'm' for menu)", 10, 10)
 end
 
--- The input handler also takes the current state and returns the new state.
 function GameManager.handle_input(game_state, type, ...)
     local next_state = game_state
     local args = {...}
@@ -41,17 +71,12 @@ function GameManager.handle_input(game_state, type, ...)
         local key = args[1]
         if key == "p" then
             next_state.current_view = "playing"
-            print("View changed to: playing")
         elseif key == "m" then
             next_state.current_view = "menu"
-            print("View changed to: menu")
         end
-    elseif type == "mousepressed" then
-        -- Handle mouse input later
     end
 
     return next_state
 end
-
 
 return GameManager

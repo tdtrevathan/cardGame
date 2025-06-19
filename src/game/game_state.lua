@@ -1,14 +1,14 @@
--- MyCardGame/src/game_state.lua
+-- MyCardGame/src/game/game_state.lua
 
-local Deck = require("src.cards.deck") -- We will refactor Deck next
-
+-- NOTE: We moved the Deck require to the top level of the module
+-- to ensure it's loaded correctly.
+local Deck = require("src.cards.deck")
 local GameState = {}
 
 -- This function creates the initial state for the entire game.
 function GameState.create()
     local initial_deck = Deck.create()
-    -- For now, we won't populate it, just show the structure
-    -- Deck.populate(initial_deck, "standard_52") -- We'll make this more generic later
+    -- Deck.populate(initial_deck)
     -- Deck.shuffle(initial_deck)
 
     local new_state = {
@@ -18,17 +18,16 @@ function GameState.create()
         deck = initial_deck,
         hand = {},
         board = {
-            -- Example of a 3x3 board, initialized to nil (empty)
-            {nil, nil, nil},
-            {nil, nil, nil},
-            {nil, nil, nil},
+            -- A 3x3 board, initialized to nil (empty)
+            {0, 0, 0},
+            {0, 0, 0},
+            {0, 0, 0},
         },
         
         score = 0,
-        -- etc.
     }
     
-    print("Initial GameState created.")
+    print("Initial GameState created with a 3x3 board.")
     return new_state
 end
 
