@@ -20,12 +20,16 @@ function GameState.create()
         deck = initial_deck,
         hand = initial_hand,
         board = {
-            -- A 3x3 board, initialized to nil (empty)
-            {{}, {}, {}, {}, {}},
-            {{}, {}, {}, {}, {}},
-            {{}, {}, {}, {}, {}},
-            {{}, {}, {}, {}, {}},
-            {{}, {}, {}, {}, {}}
+            --{{}, {}, {}, {}, {}},
+            --{{}, {}, {}, {}, {}},
+            --{{}, {}, {}, {}, {}},
+            --{{}, {}, {}, {}, {}},
+            --{{}, {}, {}, {}, {}}
+{false, false, false, false, false},
+    {false, false, false, false, false},
+    {false, false, false, false, false},
+    {false, false, false, false, false},
+    {false, false, false, false, false}
         },
         
         score = 0,

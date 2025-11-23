@@ -10,7 +10,12 @@ local GameState = require("src.game.game_state")
 local current_game_state
 
 -- LÖVE Callbacks
+-- main.lua (Top of file)
+if os.getenv("LOCAL_LUA_DEBUGGER_VSCODE") == "1" then
+    require("lldebugger").start()
+end
 
+-- ... rest of your requires ...
 function love.load()
     love.window.setTitle("My Card Game")
     love.window.setMode(1200, 900, {resizable=false, vsync=true})
@@ -42,6 +47,10 @@ end
 
 function love.mousepressed(x, y, button, istouch, presses)
     current_game_state = GameManager.handle_input(current_game_state, "mousepressed", x, y, button)
+end
+
+function love.mousereleased(x, y, button, istouch, presses)
+    current_game_state = GameManager.handle_input(current_game_state, "mousereleased", x, y, button)
 end
 
 print("main.lua parsed")
