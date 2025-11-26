@@ -1,9 +1,10 @@
 -- MyCardGame/src/game/game_manager.lua
 
 local Card = require("src.core.card")
-local Deck = require("src.core.deck") -- We need this to deal cards
+local Deck = require("src.core.deck")
 local Hand = require("src.core.hand")
 local Utils = require("src.game.utils")
+local SrceenViews = require("src.game.screen_views")
 
 --==============================================================================
 -- Private Helper Functions
@@ -17,8 +18,7 @@ local function draw_board(game_state)
     
     local card_height = 100
     local card_width = 70
-    -- CHANGED: We must define size explicitly. 
-    -- Using #game_state.board[1] on a row of nils returns 0.
+
     local num_rows = 5 
     local num_cols = 5
     
@@ -29,10 +29,8 @@ local function draw_board(game_state)
     local card_offset_x = (cell_width - card_width)/ 2
     local card_offset_y = (cell_height - card_height) / 2
     
-    -- CHANGED: Use numeric loops (1 to 5) instead of ipairs
     for r = 1, num_rows do
         for c = 1, num_cols do
-            -- CHANGED: Manually retrieve the card
             local card_in_slot = game_state.board[r][c]
             
             local cell_x = grid_offset_x + (c - 1) * (cell_width + cell_margin)
@@ -49,9 +47,9 @@ local function draw_board(game_state)
     love.graphics.setColor(1, 1, 1)
 end
 
--- NEW FUNCTION: Draws the cards in the player's hand
 local function draw_hand(game_state)
-    if game_state.hand == 0 then return end        -- Don't draw if hand is empty
+
+    if game_state.hand == 0 then return end 
 
     local hand_y = love.graphics.getHeight() - 130 -- Position hand near the bottom
     local card_width = 70
@@ -104,16 +102,15 @@ end
 function GameManager.draw(game_state)
     love.graphics.clear(0.2, 0.2, 0.2)
 
-    if game_state.current_view == "playing" then
+    if game_state.current_view == SrceenViews.GAME_SCREEN then
         draw_board(game_state)
         draw_hand(game_state) 
 
-        -- ADD THIS BLOCK to see the card while dragging
         if game_state.dragging_card then
             Card.draw(game_state.dragging_card, game_state.current_drag_x, game_state.current_drag_y)
         end
 
-    elseif game_state.current_view == "menu" then
+    elseif game_state.current_view == SrceenViews.MAIN_MENU then
         love.graphics.setColor(1, 1, 1)
         love.graphics.print("Welcome to My Card Game!", love.graphics.getWidth() / 2 - 100,
             love.graphics.getHeight() / 2 - 10)
@@ -130,16 +127,15 @@ function GameManager.handle_input(game_state, type, ...)
     if type == "keypressed" then
         local key = args[1]
         if key == "p" then
-            next_state.current_view = "playing"
+            next_state.current_view = SrceenViews.GAME_SCREEN
         elseif key == "m" then
-            next_state.current_view = "menu"
+            next_state.current_view = SrceenViews.MAIN_MENU
         elseif key == "d" then
             print("--- DEBUG: Current Game State ---")
             print(Utils.inspect(game_state))
             print("---------------------------------")
-            -- VVV ADD THIS KEYPRESS TO DEAL A CARD VVV
         elseif key == "space" then
-            if next_state.current_view == "playing" then
+            if next_state.current_view == SrceenViews.GAME_SCREEN then
                 if Hand.canDrawCard(next_state.hand) then
                     local dealt_card = Deck.deal_card(next_state.deck)
                     if dealt_card then
@@ -162,7 +158,7 @@ function GameManager.handle_input(game_state, type, ...)
     end
     if type == "mousepressed" then
         local x, y, button = args[1], args[2], args[3]
-        if button == 1 and next_state.current_view == "playing" then
+        if button == 1 and next_state.current_view ==  SrceenViews.GAME_SCREEN then
             local card, index, card_x, card_y = get_card_at_position(next_state, x, y)
             if card then
                 -- Start dragging
