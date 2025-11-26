@@ -13,7 +13,6 @@ function GameState.create()
 
     local new_state = {
         current_view = SrceenViews.MAIN_MENU,
-        
         deck = initial_deck,
         hand = initial_hand,
         board = {
