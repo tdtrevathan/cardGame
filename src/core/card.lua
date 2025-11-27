@@ -1,4 +1,6 @@
 -- MyCardGame/src/core/card.lua
+local UI = require("src.game.UI")
+local card_dimensions = require("src.game.constants.card_dimensions")
 
 local Card = {}
 
@@ -34,7 +36,7 @@ function Card.draw(card_data, x, y)
     if card_data.is_face_up then
         if card_data.image then
             -- added hardcoded scalling temporarily
-            love.graphics.draw(card_data.image, x, y,0,0.04,0.04)
+             UI.DrawImageToBox(card_data.image, x, y, card_dimensions.CARD_WIDTH, card_dimensions.CARD_HEIGHT)
         else
             -- Fallback drawing
             love.graphics.setColor(0.8, 0.8, 0.8)
