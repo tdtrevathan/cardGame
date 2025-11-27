@@ -4,12 +4,36 @@ local Card = require("src.core.card")
 local Deck = require("src.core.deck")
 local Hand = require("src.core.hand")
 local Utils = require("src.game.utils")
+local UI = require("src.game.UI")
+local card_dimensions = require("src.game.constants.card_dimensions")
 local SrceenViews = require("src.game.constants.screen_views")
 local MainMenuDisplayHandler = require("src.game.display.main_menu_display_handler")
 
 --==============================================================================
 -- Private Helper Functions
 --==============================================================================
+local function draw_card(card_data, x, y)
+    if card_data.is_face_up then
+        if card_data.image then
+            -- added hardcoded scalling temporarily
+            UI.DrawImageToBox(card_data.image, x, y, card_dimensions.CARD_WIDTH, card_dimensions.CARD_HEIGHT)
+        else
+            -- Fallback drawing
+            love.graphics.setColor(0.8, 0.8, 0.8)
+            love.graphics.rectangle("fill", x, y, 70, 100)
+            love.graphics.setColor(0, 0, 0)
+            love.graphics.printf(card_data.rank .. "\n" .. card_data.suit, x + 5, y + 5, 60, "center")
+        end
+    else
+        -- Draw card back
+        love.graphics.setColor(0.5, 0.5, 1)
+        love.graphics.rectangle("fill", x, y, 70, 100)
+        love.graphics.setColor(1,1,1)
+        love.graphics.printf("CARD", x, y + 40, 70, "center")
+    end
+    love.graphics.setColor(1, 1, 1) -- Reset color
+end
+
 local function draw_board(game_state)
     if not game_state.board then return end
     
@@ -38,7 +62,7 @@ local function draw_board(game_state)
             local cell_y = grid_offset_y + (r - 1) * (cell_height + cell_margin)
             
             if card_in_slot then
-                Card.draw(card_in_slot, cell_x + card_offset_x, cell_y + card_offset_y)
+                draw_card(card_in_slot, cell_x + card_offset_x, cell_y + card_offset_y)
             else
                 love.graphics.setColor(1, 1, 1, 0.2)
                 love.graphics.rectangle("line", cell_x, cell_y, cell_width, cell_height)
@@ -63,7 +87,7 @@ local function draw_hand(game_state)
     for i, card_data in ipairs(game_state.hand) do
         local card_x = hand_x_start + (i - 1) * card_spacing
         -- Since Card.draw already exists, we can just call it with the right data and position
-        Card.draw(card_data, card_x, hand_y)
+        draw_card(card_data, card_x, hand_y)
     end
 end
 
@@ -127,7 +151,7 @@ function GameManager.draw(game_state)
         draw_hand(game_state)
 
         if game_state.dragging_card then
-            Card.draw(game_state.dragging_card, 
+            draw_card(game_state.dragging_card, 
                 game_state.current_drag_x,
                 game_state.current_drag_y)
         end
