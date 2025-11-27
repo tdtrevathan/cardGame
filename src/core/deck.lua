@@ -20,13 +20,22 @@ function Deck.populate(deck_data)
         {rank="A", value=11}
     }
 
-    for _, suit in ipairs(suits) do
-        for _, rank_info in ipairs(ranks) do
-            local image_path = string.format("assets/images/cards/%s_%s.png", string.lower(suit), string.lower(rank_info.rank))
-            local new_card = Card.create(suit, rank_info.rank, rank_info.value, image_path)
-            table.insert(deck_data.cards, new_card)
-        end
+    local cardnames = {
+        "cattle", "cowboy", "shotgun", "saloon_girl", "lowly_outlaw", "shabby_horse", "six_shooter", "snake_pit", "back_of_card"
+    }
+
+    for _, name in ipairs(cardnames) do
+        local image_path = string.format("src/assets/images/cards/%s.png", name)
+        local new_card = Card.create("test", "0", 0, image_path)
+        table.insert(deck_data.cards, new_card)
     end
+    --for _, suit in ipairs(suits) do
+    --    for _, rank_info in ipairs(ranks) do
+    --        local image_path = string.format("src/assets/images/cards/%s_%s.png", string.lower(suit), string.lower(rank_info.rank))
+    --        local new_card = Card.create(suit, rank_info.rank, rank_info.value, image_path)
+    --        table.insert(deck_data.cards, new_card)
+    --    end
+    --end
     print("Deck populated with 52 standard cards.")
 end
 

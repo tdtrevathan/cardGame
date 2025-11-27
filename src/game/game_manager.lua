@@ -155,6 +155,10 @@ function GameManager.handle_input(game_state, type, ...)
                     print("Hand is full")
                 end
             end
+        elseif key == "enter" then
+            if next_state.current_view == SrceenViews.GAME_SCREEN then
+                
+            end
         end
     end
     if type == "mousepressed" then

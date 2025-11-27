@@ -33,7 +33,8 @@ end
 function Card.draw(card_data, x, y)
     if card_data.is_face_up then
         if card_data.image then
-            love.graphics.draw(card_data.image, x, y)
+            -- added hardcoded scalling temporarily
+            love.graphics.draw(card_data.image, x, y,0,0.04,0.04)
         else
             -- Fallback drawing
             love.graphics.setColor(0.8, 0.8, 0.8)
