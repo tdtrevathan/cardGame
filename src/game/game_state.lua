@@ -2,7 +2,7 @@
 
 local Deck = require("src.core.deck")
 local Hand = require("src.core.hand")
-local SrceenViews = require("src.game.screen_views")
+local SrceenViews = require("src.game.constants.screen_views")
 local GameState = {}
 
 function GameState.create()

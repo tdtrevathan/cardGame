@@ -4,7 +4,8 @@ local Card = require("src.core.card")
 local Deck = require("src.core.deck")
 local Hand = require("src.core.hand")
 local Utils = require("src.game.utils")
-local SrceenViews = require("src.game.screen_views")
+local SrceenViews = require("src.game.constants.screen_views")
+local MainMenuDisplayHandler = require("src.game.display.main_menu_display_handler")
 
 --==============================================================================
 -- Private Helper Functions
@@ -104,20 +105,20 @@ function GameManager.draw(game_state)
 
     if game_state.current_view == SrceenViews.GAME_SCREEN then
         draw_board(game_state)
-        draw_hand(game_state) 
+        draw_hand(game_state)
 
         if game_state.dragging_card then
-            Card.draw(game_state.dragging_card, game_state.current_drag_x, game_state.current_drag_y)
+            Card.draw(game_state.dragging_card, 
+                game_state.current_drag_x,
+                game_state.current_drag_y)
         end
 
     elseif game_state.current_view == SrceenViews.MAIN_MENU then
-        love.graphics.setColor(1, 1, 1)
-        love.graphics.print("Welcome to My Card Game!", love.graphics.getWidth() / 2 - 100,
-            love.graphics.getHeight() / 2 - 10)
+        MainMenuDisplayHandler.DisplayMainMenu()
     end
 
     love.graphics.setColor(1, 1, 1)
-    love.graphics.print("Current View: " .. game_state.current_view .. " (Press SPACE to deal)", 10, 10)
+    love.graphics.print("Current View: " .. game_state.current_view, 10, 10)
 end
 
 function GameManager.handle_input(game_state, type, ...)

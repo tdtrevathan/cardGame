@@ -5,6 +5,7 @@
 -- Require necessary modules
 local GameManager = require("src.game.game_manager")
 local GameState = require("src.game.game_state")
+local FontManager = require("src.game.display.font_manager")
 
 -- This variable will hold the single source of truth for our game.
 local current_game_state
@@ -17,6 +18,7 @@ end
 
 -- ... rest of your requires ...
 function love.load()
+    FontManager.load()
     love.window.setTitle("My Card Game")
     love.window.setMode(1200, 900, {resizable=false, vsync=true})
 
