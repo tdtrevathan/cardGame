@@ -85,6 +85,25 @@ local function get_card_at_position(game_state, x, y)
     end
     return nil -- No card found
 end
+
+local function handleMousePress(game_state, type,  ...)
+
+            local next_state = game_state
+            local args = { ... }
+            local x, y, button = args[1], args[2], args[3]
+        if button == 1 and next_state.current_view ==  SrceenViews.GAME_SCREEN then
+            local card, index, card_x, card_y = get_card_at_position(next_state, x, y)
+            if card then
+                -- Start dragging
+                next_state.dragging_card = card
+                next_state.drag_offset_x = x - card_x
+                next_state.drag_offset_y = y - card_y
+                next_state.original_hand_index = index
+                -- Temporarily remove the card from the hand so it doesn't draw in its original spot
+                table.remove(next_state.hand, index)
+            end
+        end
+end
 --==============================================================================
 -- Public GameManager Module
 --==============================================================================
@@ -162,19 +181,7 @@ function GameManager.handle_input(game_state, type, ...)
         end
     end
     if type == "mousepressed" then
-        local x, y, button = args[1], args[2], args[3]
-        if button == 1 and next_state.current_view ==  SrceenViews.GAME_SCREEN then
-            local card, index, card_x, card_y = get_card_at_position(next_state, x, y)
-            if card then
-                -- Start dragging
-                next_state.dragging_card = card
-                next_state.drag_offset_x = x - card_x
-                next_state.drag_offset_y = y - card_y
-                next_state.original_hand_index = index
-                -- Temporarily remove the card from the hand so it doesn't draw in its original spot
-                table.remove(next_state.hand, index)
-            end
-        end
+        handleMousePress(game_state, type, ...)
     end
     if type == "mousereleased" then
         local x, y, button = args[1], args[2], args[3]

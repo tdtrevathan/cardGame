@@ -26,6 +26,6 @@ function love.conf(t)
     t.modules.video = false -- Not typically needed
     t.modules.thread = true
     t.modules.font = true -- Enable font module
-    t.console = true
+    t.console = false
     print("conf.lua loaded and applied.")
 end
