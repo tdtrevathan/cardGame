@@ -7,23 +7,22 @@ local Utils = require("src.game.utils")
 local UI = require("src.game.UI")
 local SrceenViews = require("src.game.constants.screen_views")
 local MainMenuDisplayHandler = require("src.game.display.main_menu_display_handler")
+local card_dimensions = require("src.game.constants.card_dimensions")
 
 --==============================================================================
 -- Private Helper Functions
 --==============================================================================
 local function get_card_at_position(game_state, x, y)
     local hand_y = love.graphics.getHeight() - 130
-    local card_width = 70
-    local card_height = 100 -- Assuming a standard card height
     local card_spacing = 80
-    local total_hand_width = (#game_state.hand * card_spacing) - (card_spacing - card_width)
+    local total_hand_width = (#game_state.hand * card_spacing) - (card_spacing - card_dimensions.CARD_WIDTH)
     local hand_x_start = (love.graphics.getWidth() - total_hand_width) / 2
 
     for i, card_data in ipairs(game_state.hand) do
         local card_x = hand_x_start + (i - 1) * card_spacing
         -- Check if the coordinates (x, y) are within the card's bounding box
-        if x >= card_x and x < card_x + card_width and
-            y >= hand_y and y < hand_y + card_height then
+        if x >= card_x and x < card_x + card_dimensions.CARD_WIDTH and
+            y >= hand_y and y < hand_y + card_dimensions.CARD_HEIGHT then
             return card_data, i, card_x, hand_y
         end
     end
