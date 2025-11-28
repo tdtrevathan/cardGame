@@ -24,6 +24,11 @@ function GameState.create()
         },
         
         score = 0,
+        dragging_card = nil,
+        drag_offset_x = nil,
+        drag_offset_y = nil,
+        original_hand_index = nil,
+        player_input_active = true
     }
     
     print("Initial GameState created with a 3x3 board.")

@@ -1,4 +1,3 @@
-local HomeScreenText = require("src.game.constants.home_screen_text")
 local FontManager = require("src.game.display.font_manager")
 
 local CardViewDisplayHandler= {}

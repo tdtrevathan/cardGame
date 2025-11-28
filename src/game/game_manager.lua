@@ -30,36 +30,35 @@ local function get_card_at_position(game_state, x, y)
     return nil -- No card found
 end
 
-local function handleMousePress(game_state, type,  ...)
+local function handleMousePress(game_state, type, ...)
+    local next_state = game_state
+    local args = { ... }
+    local x, y, button = args[1], args[2], args[3]
 
-            local next_state = game_state
-            local args = { ... }
-            local x, y, button = args[1], args[2], args[3]
-
--- Right-Click Logic: Set the card for preview
+    -- Right-Click Logic: Set the card for preview
     if button == 2 and next_state.current_view == SrceenViews.GAME_SCREEN then
         local card, _, _, _ = get_card_at_position(next_state, x, y)
         if card then
             -- Set the card to be previewed on the right-click press
             next_state.preview_card = card
-            -- Crucially, since the right-click *starts* the preview, 
+            -- Crucially, since the right-click *starts* the preview,
             -- we stop here and don't proceed to the dragging logic.
             return next_state
         end
     end
 
-        if button == 1 and next_state.current_view ==  SrceenViews.GAME_SCREEN then
-            local card, index, card_x, card_y = get_card_at_position(next_state, x, y)
-            if card then
-                -- Start dragging
-                next_state.dragging_card = card
-                next_state.drag_offset_x = x - card_x
-                next_state.drag_offset_y = y - card_y
-                next_state.original_hand_index = index
-                -- Temporarily remove the card from the hand so it doesn't draw in its original spot
-                table.remove(next_state.hand, index)
-            end
+    if button == 1 and next_state.current_view == SrceenViews.GAME_SCREEN then
+        local card, index, card_x, card_y = get_card_at_position(next_state, x, y)
+        if card then
+            -- Start dragging
+            next_state.dragging_card = card
+            next_state.drag_offset_x = x - card_x
+            next_state.drag_offset_y = y - card_y
+            next_state.original_hand_index = index
+            -- Temporarily remove the card from the hand so it doesn't draw in its original spot
+            table.remove(next_state.hand, index)
         end
+    end
 end
 local function handleMouseRelease(game_state, type, ...)
     local next_state = game_state
@@ -155,33 +154,44 @@ function GameManager.handle_input(game_state, type, ...)
     local next_state = game_state
     local args = { ... }
 
-    if type == "keypressed" then
-        local key = args[1]
-        if key == "p" then
-            next_state.current_view = SrceenViews.GAME_SCREEN
-        elseif key == "v" then
-            next_state.current_view = SrceenViews.CARD_SCREEN
-        elseif key == "m" then
-            next_state.current_view = SrceenViews.MAIN_MENU
-        elseif key == "d" then
-            print("--- DEBUG: Current Game State ---")
-            print(Utils.inspect(game_state))
-            print("---------------------------------")
-        elseif key == "space" then
-            if next_state.current_view == SrceenViews.GAME_SCREEN then
-                handleDrawCard(next_state)
-            end
-        elseif key == "enter" then
-            if next_state.current_view == SrceenViews.GAME_SCREEN then
-                
+    if (next_state.player_input_active) then
+        if type == "keypressed" then
+            local key = args[1]
+            if key == "p" then
+                next_state.current_view = SrceenViews.GAME_SCREEN
+            elseif key == "v" then
+                next_state.current_view = SrceenViews.CARD_SCREEN
+            elseif key == "m" then
+                next_state.current_view = SrceenViews.MAIN_MENU
+            elseif key == "d" then
+                print("--- DEBUG: Current Game State ---")
+                print(Utils.inspect(game_state))
+                print("---------------------------------")
+            elseif key == "space" then
+                if next_state.current_view == SrceenViews.GAME_SCREEN then
+                    handleDrawCard(next_state)
+                end
+            elseif key == "return" then
+                if next_state.current_view == SrceenViews.GAME_SCREEN then
+                    -- Display Message
+                    -- Disable input
+                    -- Place something on board
+                    -- Display Message
+                    --
+                    next_state.player_input_active = false
+
+                    
+
+                    next_state.player_input_active = true
+                end
             end
         end
-    end
-    if type == "mousepressed" then
-        handleMousePress(game_state, type, ...)
-    end
-    if type == "mousereleased" then
-        handleMouseRelease(game_state, type, ...)
+        if type == "mousepressed" then
+            handleMousePress(game_state, type, ...)
+        end
+        if type == "mousereleased" then
+            handleMouseRelease(game_state, type, ...)
+        end
     end
     return next_state
 end
