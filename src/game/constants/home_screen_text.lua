@@ -10,6 +10,8 @@ Navigation Options:
 Start the Game: p
 
 Go Back to Main Menu: m
+
+View Card Screen: v
 ]]
 
 Texts.title = title;
