@@ -1,5 +1,6 @@
 local card_dimensions = require("src.game.constants.card_dimensions")
 local board_dimensions = require("src.game.constants.board_dimensions")
+local card_position_calculator = require("src.game.card_position_calculator")
 
 local UI = {}
 
@@ -21,7 +22,19 @@ function UI.DrawCard(card_data, x, y)
     if card_data.is_face_up then
         if card_data.image then
             -- added hardcoded scalling temporarily
-            UI.DrawImageToBox(card_data.image, x, y, card_dimensions.CARD_WIDTH, card_dimensions.CARD_HEIGHT)
+            if card_data.hover_is_active then
+                UI.DrawImageToBox(card_data.image, 
+                    x - 100, -- hover offset
+                    y - 220, -- hovoer offset
+                    card_dimensions.CARD_WIDTH * 3,
+                    card_dimensions.CARD_HEIGHT * 3)
+            else
+                UI.DrawImageToBox(card_data.image, 
+                    x,
+                    y,
+                    card_dimensions.CARD_WIDTH,
+                    card_dimensions.CARD_HEIGHT)
+            end
         else
             -- Fallback drawing
             love.graphics.setColor(0.8, 0.8, 0.8)
@@ -71,18 +84,12 @@ function UI.DrawHand(game_state)
 
     if game_state.hand == 0 then return end 
 
-    local hand_y = love.graphics.getHeight() - 130 -- Position hand near the bottom
-    local card_width = 70
-    local card_spacing = 80                        -- Spacing between the start of each card
-
-    -- Calculate the total width of the hand to center it
-    local total_hand_width = (#game_state.hand * card_spacing) - (card_spacing - card_width)
-    local hand_x_start = (love.graphics.getWidth() - total_hand_width) / 2
+    local hand_position = card_position_calculator.CalculateHandPosition(game_state)
 
     for i, card_data in ipairs(game_state.hand) do
-        local card_x = hand_x_start + (i - 1) * card_spacing
+        local card_x = hand_position.X + (i - 1) * card_dimensions.CARD_SPACING
         -- Since Card.draw already exists, we can just call it with the right data and position
-        UI.DrawCard(card_data, card_x, hand_y)
+        UI.DrawCard(card_data, card_x, hand_position.Y)
     end
 end
 

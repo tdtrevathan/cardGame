@@ -54,4 +54,9 @@ function Utils.get_board_slot_at_position(game_state, x, y)
     return nil, nil
 end
 
+function CheckCollision(mouseX, mouseY, rectX, rectY, rectW, rectH)
+    return mouseX >= rectX and mouseX <= rectX + rectW and
+           mouseY >= rectY and mouseY <= rectY + rectH
+end
+
 return Utils

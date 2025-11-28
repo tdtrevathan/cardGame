@@ -10,6 +10,9 @@ local MainMenuDisplayHandler = require("src.game.display.main_menu_display_handl
 local CardViewDisplayHandler = require("src.game.display.card_view_display_handler")
 local card_dimensions = require("src.game.constants.card_dimensions")
 local board_dimensions = require("src.game.constants.board_dimensions")
+local card_position_calculator = require("src.game.card_position_calculator")
+local push = require('src.core.push')
+
 
 --==============================================================================
 -- Private Helper Functions
@@ -94,6 +97,7 @@ local function handleMouseRelease(game_state, type, ...)
         next_state.original_hand_index = nil
     end
 end
+
 local function handleDrawCard(next_state)
     if Hand.canDrawCard(next_state.hand) then
         local dealt_card = Deck.deal_card(next_state.deck)
@@ -135,19 +139,43 @@ local function handleEnemyTurn(next_state)
 
     next_state.player_input_active = true
 end
+
 --==============================================================================
 -- Public GameManager Module
 --==============================================================================
 local GameManager = {}
 
-function GameManager.update(game_state, dt)
+function GameManager.update(game_state)
+    
+    local current_state = game_state
+
     if game_state.dragging_card then
         local mouse_x, mouse_y = love.mouse.getPosition()
         -- Store current drag position for drawing
-        game_state.current_drag_x = mouse_x - game_state.drag_offset_x
-        game_state.current_drag_y = mouse_y - game_state.drag_offset_y
+        current_state.current_drag_x = mouse_x - current_state.drag_offset_x
+        current_state.current_drag_y = mouse_y - current_state.drag_offset_y
+    else
+        -- 1. Get Mouse Position converted to Virtual Resolution
+        -- push:toGame returns nil if mouse is in the black bars, so we default to 0,0
+        local mx, my = push:toGame(love.mouse.getPosition())
+        if mx == nil or my == nil then return end
+
+        local hoveredCardIndex = nil -- Reset every frame
+        local hand_position = card_position_calculator.CalculateHandPosition(current_state)
+
+        -- 2. Loop BACKWARDS through the hand (Top card first)
+        for i = #current_state.hand, 1, -1 do
+            local card_x = hand_position.X + (i - 1) * card_dimensions.CARD_SPACING
+
+            if CheckCollision(mx, my, card_x, hand_position.Y, card_dimensions.CARD_WIDTH, card_dimensions.CARD_HEIGHT) then
+                current_state.hand[i].hover_is_active = true
+                break -- We found the top-most card, stop checking!
+            else
+                current_state.hand[i].hover_is_active = false
+            end
+        end
     end
-    return game_state
+    return current_state
 end
 
 function GameManager.draw(game_state)
@@ -158,13 +186,12 @@ function GameManager.draw(game_state)
         UI.DrawHand(game_state)
 
         if game_state.dragging_card then
-            UI.DrawCard(game_state.dragging_card, 
+            UI.DrawCard(game_state.dragging_card,
                 game_state.current_drag_x,
                 game_state.current_drag_y)
         end
-
     elseif game_state.current_view == SrceenViews.CARD_SCREEN then
-        CardViewDisplayHandler.DisplayCardView()    
+        CardViewDisplayHandler.DisplayCardView()
     elseif game_state.current_view == SrceenViews.MAIN_MENU then
         MainMenuDisplayHandler.DisplayMainMenu()
     end
