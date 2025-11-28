@@ -9,6 +9,7 @@ local SrceenViews = require("src.game.constants.screen_views")
 local MainMenuDisplayHandler = require("src.game.display.main_menu_display_handler")
 local CardViewDisplayHandler = require("src.game.display.card_view_display_handler")
 local card_dimensions = require("src.game.constants.card_dimensions")
+local board_dimensions = require("src.game.constants.board_dimensions")
 
 --==============================================================================
 -- Private Helper Functions
@@ -112,6 +113,30 @@ local function handleDrawCard(next_state)
         print("Hand is full")
     end
 end
+
+local function handleEnemyTurn(next_state)
+    -- Display Message
+    -- Disable input
+    -- Place something on board
+    -- Display Message
+    --
+    next_state.player_input_active = false
+
+    for r = 1, board_dimensions.NUM_ROWS do
+        for c = 1, board_dimensions.NUM_COLS do
+            if not next_state.board[r][c] then
+                local image_path = string.format("src/assets/images/cards/%s.png", "back_of_card")
+                local enemy_card = Card.create("test", "0", 0, image_path)
+                next_state.board[r][c] = enemy_card
+
+                next_state.player_input_active = true
+                return next_state
+            end
+        end
+    end
+
+    next_state.player_input_active = true
+end
 --==============================================================================
 -- Public GameManager Module
 --==============================================================================
@@ -173,16 +198,7 @@ function GameManager.handle_input(game_state, type, ...)
                 end
             elseif key == "return" then
                 if next_state.current_view == SrceenViews.GAME_SCREEN then
-                    -- Display Message
-                    -- Disable input
-                    -- Place something on board
-                    -- Display Message
-                    --
-                    next_state.player_input_active = false
-
-                    
-
-                    next_state.player_input_active = true
+                    handleEnemyTurn(next_state)
                 end
             end
         end
