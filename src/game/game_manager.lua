@@ -103,8 +103,6 @@ local function handleDrawCard(next_state)
             -- Make sure the card is face up to be visible in the hand
             dealt_card.is_face_up = true
             table.insert(next_state.hand, dealt_card)
-            print("Dealt card to hand: " ..
-                Card.to_string(dealt_card) .. ". Deck has " .. Deck.count(next_state.deck) .. " cards left.")
         else
             print("Cannot deal, deck is empty!")
         end
@@ -126,7 +124,7 @@ local function handleEnemyTurn(next_state)
         for c = 1, board_dimensions.NUM_COLS do
             if not next_state.board[r][c] then
                 local image_path = string.format("src/assets/images/cards/%s.png", "back_of_card")
-                local enemy_card = Card.create("test", "0", 0, image_path)
+                local enemy_card = Card.create(image_path)
                 next_state.board[r][c] = enemy_card
 
                 next_state.player_input_active = true

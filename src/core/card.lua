@@ -4,11 +4,8 @@ local Card = {}
 
 -- This isn't a constructor anymore. It's a factory function
 -- that creates a data table representing a card.
-function Card.create(suit, rank, value, image_path)
+function Card.create(image_path)
     local card_data = {
-        suit = suit,
-        rank = rank,
-        value = value,
         image_path = image_path,
         image = nil, -- Will be loaded later
         is_face_up = false
