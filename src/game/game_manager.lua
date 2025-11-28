@@ -201,6 +201,58 @@ local function handleMousePress(game_state, type,  ...)
             end
         end
 end
+local function handleMouseRelease(game_state, type, ...)
+    local next_state = game_state
+    local args = { ... }
+
+    local x, y, button = args[1], args[2], args[3]
+
+    if button == 1 and next_state.dragging_card then
+        local card = next_state.dragging_card
+        local card_dropped = false
+
+        -- Check for Board Drop Zone (You'll need a helper for this!)
+        local dropped_row, dropped_col = Utils.get_board_slot_at_position(next_state, x, y)
+
+        if dropped_row and dropped_col and not next_state.board[dropped_row][dropped_col] then
+            -- Drop successful: Place on board
+            next_state.board[dropped_row][dropped_col] = card
+            card_dropped = true
+            print("Card placed on board at: " .. dropped_row .. ", " .. dropped_col)
+        end
+
+        -- Clean up drag state
+        next_state.dragging_card = nil
+        next_state.drag_offset_x = nil
+        next_state.drag_offset_y = nil
+
+        if not card_dropped then
+            -- Drop failed (not on board or slot full): Return card to hand
+            table.insert(next_state.hand, next_state.original_hand_index, card)
+            print("Card returned to hand.")
+        end
+        next_state.original_hand_index = nil
+    end
+end
+local function handleDrawCard(next_state)
+    if Hand.canDrawCard(next_state.hand) then
+        local dealt_card = Deck.deal_card(next_state.deck)
+        if dealt_card then
+            -- Load the image when the card is dealt
+            Card.load_image(dealt_card)
+            -- Make sure the card is face up to be visible in the hand
+            dealt_card.is_face_up = true
+            table.insert(next_state.hand, dealt_card)
+            print("Dealt card to hand: " ..
+                Card.to_string(dealt_card) .. ". Deck has " .. Deck.count(next_state.deck) .. " cards left.")
+        else
+            print("Cannot deal, deck is empty!")
+        end
+    else
+        print("Hand size: " .. Hand.count(next_state.hand))
+        print("Hand is full")
+    end
+end
 --==============================================================================
 -- Public GameManager Module
 --==============================================================================
@@ -257,6 +309,7 @@ function GameManager.handle_input(game_state, type, ...)
             print("---------------------------------")
         elseif key == "space" then
             if next_state.current_view == SrceenViews.GAME_SCREEN then
+                handleDrawCard(next_state)
                 if Hand.canDrawCard(next_state.hand) then
                     local dealt_card = Deck.deal_card(next_state.deck)
                     if dealt_card then
@@ -302,6 +355,7 @@ function GameManager.handle_input(game_state, type, ...)
         handleMousePress(game_state, type, ...)
     end
     if type == "mousereleased" then
+        handleMouseRelease(game_state, type, ...)
         local x, y, button = args[1], args[2], args[3]
 
         if button == 1 and next_state.dragging_card then
