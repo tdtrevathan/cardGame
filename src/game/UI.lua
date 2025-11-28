@@ -24,8 +24,8 @@ function UI.DrawCard(card_data, x, y)
             -- added hardcoded scalling temporarily
             if card_data.hover_is_active then
                 UI.DrawImageToBox(card_data.image, 
-                    card_dimensions.HOVER_X_OFFSET,
-                    card_dimensions.HOVER_Y_OFFSET,
+                    x + card_dimensions.HOVER_X_OFFSET,
+                    y + card_dimensions.HOVER_Y_OFFSET,
                     card_dimensions.CARD_WIDTH * 3,
                     card_dimensions.CARD_HEIGHT * 3)
             else

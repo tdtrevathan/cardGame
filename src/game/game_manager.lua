@@ -160,7 +160,6 @@ function GameManager.update(game_state)
         local mx, my = push:toGame(love.mouse.getPosition())
         if mx == nil or my == nil then return end
 
-        local hoveredCardIndex = nil -- Reset every frame
         local hand_position = card_position_calculator.CalculateHandPosition(current_state)
 
         -- 2. Loop BACKWARDS through the hand (Top card first)
@@ -203,6 +202,10 @@ end
 function GameManager.handle_input(game_state, type, ...)
     local next_state = game_state
     local args = { ... }
+
+    for i = 1, #next_state.hand do
+        next_state.hand[i].hover_is_active = false
+    end
 
     if (next_state.player_input_active) then
         if type == "keypressed" then
