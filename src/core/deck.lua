@@ -4,16 +4,8 @@ local Card = require("src.core.card")
 
 local Deck = {}
 
--- Creates an empty deck data table
-function Deck.create()
-    return { cards = {} }
-end
-
--- Populates a deck table. This modifies the table passed in.
-function Deck.populate(deck_data)
-    deck_data.cards = {} -- Clear existing cards
-
-    local cardnames = {
+local function createHardCodedDeck(deck_data)
+        local cardnames = {
         "cattle", "cowboy", "shotgun", "saloon_girl", "lowly_outlaw", "shabby_horse", "six_shooter", "snake_pit", "back_of_card"
     }
 
@@ -24,6 +16,18 @@ function Deck.populate(deck_data)
     end
 end
 
+-- Creates an empty deck data table
+function Deck.create()
+    return { cards = {} }
+end
+
+-- Populates a deck table. This modifies the table passed in.
+function Deck.populate(deck_data)
+    deck_data.cards = {} -- Clear existing cards
+
+    createHardCodedDeck(deck_data)
+end
+
 -- Shuffles the cards in the deck table.
 function Deck.shuffle(deck_data)
     local n = #deck_data.cards
@@ -31,7 +35,6 @@ function Deck.shuffle(deck_data)
         local j = love.math.random(i)
         deck_data.cards[i], deck_data.cards[j] = deck_data.cards[j], deck_data.cards[i]
     end
-    print("Deck shuffled.")
 end
 
 -- Removes and returns the top card from the deck.
