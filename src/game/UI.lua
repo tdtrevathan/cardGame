@@ -1,4 +1,5 @@
 local card_dimensions = require("src.game.constants.card_dimensions")
+local board_dimensions = require("src.game.constants.board_dimensions")
 
 local UI = {}
 
@@ -41,35 +42,25 @@ end
 function UI.DrawBoard(game_state)
     if not game_state.board then return end
     
-    local cell_width = 90
-    local cell_height = 120
-    local cell_margin = 15
-    
-    local card_height = 100
-    local card_width = 70
-
-    local num_rows = 5 
-    local num_cols = 5
-    
-    local total_grid_width = (num_cols * cell_width) + ((num_cols - 1) * cell_margin)
-    local total_grid_height = (num_rows * cell_height) + ((num_rows - 1) * cell_margin)
+    local total_grid_width = (board_dimensions.NUM_COLS * board_dimensions.CELL_WIDTH) + ((board_dimensions.NUM_COLS - 1) * board_dimensions.CELL_MARGIN)
+    local total_grid_height = (board_dimensions.NUM_ROWS * board_dimensions.CELL_HEIGHT) + ((board_dimensions.NUM_ROWS - 1) * board_dimensions.CELL_MARGIN)
     local grid_offset_x = (love.graphics.getWidth() - total_grid_width) / 2
     local grid_offset_y = (love.graphics.getHeight() - total_grid_height) / 2
-    local card_offset_x = (cell_width - card_width)/ 2
-    local card_offset_y = (cell_height - card_height) / 2
+    local card_offset_x = (board_dimensions.CELL_WIDTH - card_dimensions.CARD_WIDTH)/ 2
+    local card_offset_y = (board_dimensions.CELL_HEIGHT - card_dimensions.CARD_HEIGHT) / 2
     
-    for r = 1, num_rows do
-        for c = 1, num_cols do
+    for r = 1, board_dimensions.NUM_ROWS do
+        for c = 1, board_dimensions.NUM_COLS do
             local card_in_slot = game_state.board[r][c]
             
-            local cell_x = grid_offset_x + (c - 1) * (cell_width + cell_margin)
-            local cell_y = grid_offset_y + (r - 1) * (cell_height + cell_margin)
+            local cell_x = grid_offset_x + (c - 1) * (board_dimensions.CELL_WIDTH + board_dimensions.CELL_MARGIN)
+            local cell_y = grid_offset_y + (r - 1) * (board_dimensions.CELL_HEIGHT + board_dimensions.CELL_MARGIN)
             
             if card_in_slot then
                 UI.DrawCard(card_in_slot, cell_x + card_offset_x, cell_y + card_offset_y)
             else
                 love.graphics.setColor(1, 1, 1, 0.2)
-                love.graphics.rectangle("line", cell_x, cell_y, cell_width, cell_height)
+                love.graphics.rectangle("line", cell_x, cell_y, board_dimensions.CELL_WIDTH, board_dimensions.CELL_HEIGHT)
             end
         end
     end
