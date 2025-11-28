@@ -67,11 +67,71 @@ local function draw_hand(game_state)
     end
 end
 
+local function draw_board(game_state)
+    if not game_state.board then return end
+    
+    local cell_width = 90
+    local cell_height = 120
+    local cell_margin = 15
+    
+    local card_height = 100
+    local card_width = 70
+
+    local num_rows = 5 
+    local num_cols = 5
+    
+    local total_grid_width = (num_cols * cell_width) + ((num_cols - 1) * cell_margin)
+    local total_grid_height = (num_rows * cell_height) + ((num_rows - 1) * cell_margin)
+    local grid_offset_x = (love.graphics.getWidth() - total_grid_width) / 2
+    local grid_offset_y = (love.graphics.getHeight() - total_grid_height) / 2
+    local card_offset_x = (cell_width - card_width)/ 2
+    local card_offset_y = (cell_height - card_height) / 2
+    
+    for r = 1, num_rows do
+        for c = 1, num_cols do
+            local card_in_slot = game_state.board[r][c]
+            
+            local cell_x = grid_offset_x + (c - 1) * (cell_width + cell_margin)
+            local cell_y = grid_offset_y + (r - 1) * (cell_height + cell_margin)
+            
+            if card_in_slot then
+                Card.draw(card_in_slot, cell_x + card_offset_x, cell_y + card_offset_y)
+            else
+                love.graphics.setColor(1, 1, 1, 0.2)
+                love.graphics.rectangle("line", cell_x, cell_y, cell_width, cell_height)
+            end
+        end
+    end
+    love.graphics.setColor(1, 1, 1)
+end
+
+local function draw_hand(game_state)
+
+    if game_state.hand == 0 then return end 
+
+    local hand_y = love.graphics.getHeight() - 130 -- Position hand near the bottom
+    local card_width = 70
+    local card_spacing = 80                        -- Spacing between the start of each card
+
+    -- Calculate the total width of the hand to center it
+    local total_hand_width = (#game_state.hand * card_spacing) - (card_spacing - card_width)
+    local hand_x_start = (love.graphics.getWidth() - total_hand_width) / 2
+
+    for i, card_data in ipairs(game_state.hand) do
+        local card_x = hand_x_start + (i - 1) * card_spacing
+        -- Since Card.draw already exists, we can just call it with the right data and position
+        Card.draw(card_data, card_x, hand_y)
+    end
+end
+
 local function get_card_at_position(game_state, x, y)
     local hand_y = love.graphics.getHeight() - 130
     local card_width = 70
     local card_height = 100 -- Assuming a standard card height
+    local card_width = 70
+    local card_height = 100 -- Assuming a standard card height
     local card_spacing = 80
+    local total_hand_width = (#game_state.hand * card_spacing) - (card_spacing - card_width)
     local total_hand_width = (#game_state.hand * card_spacing) - (card_spacing - card_width)
     local hand_x_start = (love.graphics.getWidth() - total_hand_width) / 2
 
@@ -190,6 +250,23 @@ function GameManager.handle_input(game_state, type, ...)
                     print("Hand size: " .. Hand.count(next_state.hand))
                     print("Hand is full")
                 end
+                if Hand.canDrawCard(next_state.hand) then
+                    local dealt_card = Deck.deal_card(next_state.deck)
+                    if dealt_card then
+                        -- Load the image when the card is dealt
+                        Card.load_image(dealt_card)
+                        -- Make sure the card is face up to be visible in the hand
+                        dealt_card.is_face_up = true
+                        table.insert(next_state.hand, dealt_card)
+                        print("Dealt card to hand: " ..
+                            Card.to_string(dealt_card) .. ". Deck has " .. Deck.count(next_state.deck) .. " cards left.")
+                    else
+                        print("Cannot deal, deck is empty!")
+                    end
+                else
+                    print("Hand size: " .. Hand.count(next_state.hand))
+                    print("Hand is full")
+                end
             end
         elseif key == "enter" then
             if next_state.current_view == SrceenViews.GAME_SCREEN then
@@ -201,6 +278,34 @@ function GameManager.handle_input(game_state, type, ...)
         handleMousePress(game_state, type, ...)
     end
     if type == "mousereleased" then
+        local x, y, button = args[1], args[2], args[3]
+
+        if button == 1 and next_state.dragging_card then
+            local card = next_state.dragging_card
+            local card_dropped = false
+
+            -- Check for Board Drop Zone (You'll need a helper for this!)
+            local dropped_row, dropped_col = Utils.get_board_slot_at_position(next_state, x, y)
+
+            if dropped_row and dropped_col and not next_state.board[dropped_row][dropped_col] then
+                -- Drop successful: Place on board
+                next_state.board[dropped_row][dropped_col] = card
+                card_dropped = true
+                print("Card placed on board at: " .. dropped_row .. ", " .. dropped_col)
+            end
+
+            -- Clean up drag state
+            next_state.dragging_card = nil
+            next_state.drag_offset_x = nil
+            next_state.drag_offset_y = nil
+
+            if not card_dropped then
+                -- Drop failed (not on board or slot full): Return card to hand
+                table.insert(next_state.hand, next_state.original_hand_index, card)
+                print("Card returned to hand.")
+            end
+            next_state.original_hand_index = nil
+        end
         local x, y, button = args[1], args[2], args[3]
 
         if button == 1 and next_state.dragging_card then
