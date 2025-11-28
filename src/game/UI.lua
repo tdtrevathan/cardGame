@@ -43,11 +43,19 @@ function UI.DrawCard(card_data, x, y)
             love.graphics.printf(card_data.rank .. "\n" .. card_data.suit, x + 5, y + 5, 60, "center")
         end
     else
-        -- Draw card back
-        love.graphics.setColor(0.5, 0.5, 1)
-        love.graphics.rectangle("fill", x, y, 70, 100)
-        love.graphics.setColor(1,1,1)
-        love.graphics.printf("CARD", x, y + 40, 70, "center")
+        if card_data.hover_is_active then
+            UI.DrawImageToBox(card_data.image,
+                x + card_dimensions.HOVER_X_OFFSET,
+                y + card_dimensions.HOVER_Y_OFFSET,
+                card_dimensions.CARD_WIDTH * 3,
+                card_dimensions.CARD_HEIGHT * 3)
+        else
+            UI.DrawImageToBox(card_data.back_image,
+                x,
+                y,
+                card_dimensions.CARD_WIDTH,
+                card_dimensions.CARD_HEIGHT)
+        end
     end
     love.graphics.setColor(1, 1, 1) -- Reset color
 end

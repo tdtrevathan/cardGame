@@ -127,8 +127,10 @@ local function handleEnemyTurn(next_state)
     for r = 1, board_dimensions.NUM_ROWS do
         for c = 1, board_dimensions.NUM_COLS do
             if not next_state.board[r][c] then
-                local image_path = string.format("src/assets/images/cards/%s.png", "back_of_card")
-                local enemy_card = Card.create(image_path)
+                local enemy_card = Card.create("src/assets/images/cards/lowly_outlaw.png")
+                enemy_card.is_face_up = false
+                Card.load_image(enemy_card)
+
                 next_state.board[r][c] = enemy_card
 
                 next_state.player_input_active = true
@@ -140,6 +142,54 @@ local function handleEnemyTurn(next_state)
     next_state.player_input_active = true
 end
 
+local function checkHandHover(current_state)
+    -- 1. Get Mouse Position converted to Virtual Resolution
+    -- push:toGame returns nil if mouse is in the black bars, so we default to 0,0
+    local mx, my = push:toGame(love.mouse.getPosition())
+    if mx == nil or my == nil then return end
+
+    local hand_position = card_position_calculator.CalculateHandPosition(current_state)
+
+    -- 2. Loop BACKWARDS through the hand (Top card first)
+    for i = #current_state.hand, 1, -1 do
+        local card_x = hand_position.X + (i - 1) * card_dimensions.CARD_SPACING
+
+        if CheckCollision(mx, my, card_x, hand_position.Y, card_dimensions.CARD_WIDTH, card_dimensions.CARD_HEIGHT) then
+            current_state.hand[i].hover_is_active = true
+            break     -- We found the top-most card, stop checking!
+        else
+            current_state.hand[i].hover_is_active = false
+        end
+    end
+end
+
+local function checkBoardHover(current_state)
+    -- 1. Get Mouse Position converted to Virtual Resolution
+    -- push:toGame returns nil if mouse is in the black bars, so we default to 0,0
+    local mx, my = push:toGame(love.mouse.getPosition())
+    if mx == nil or my == nil then return end
+
+    local hover_row, hover_col = Utils.get_board_slot_at_position(current_state, mx, my)
+
+    if hover_row and hover_col and current_state.board[hover_row][hover_col] then
+        current_state.board[hover_row][hover_col].hover_is_active = true
+    end
+end
+
+local function resetHover(next_state)
+    for i = 1, #next_state.hand do
+        next_state.hand[i].hover_is_active = false
+    end
+    for r = 1, board_dimensions.NUM_ROWS do
+        for c = 1, board_dimensions.NUM_COLS do
+            local card_in_slot = next_state.board[r][c]
+
+            if card_in_slot then
+                next_state.board[r][c].hover_is_active = false
+            end
+        end
+    end
+end
 --==============================================================================
 -- Public GameManager Module
 --==============================================================================
@@ -155,24 +205,8 @@ function GameManager.update(game_state)
         current_state.current_drag_x = mouse_x - current_state.drag_offset_x
         current_state.current_drag_y = mouse_y - current_state.drag_offset_y
     else
-        -- 1. Get Mouse Position converted to Virtual Resolution
-        -- push:toGame returns nil if mouse is in the black bars, so we default to 0,0
-        local mx, my = push:toGame(love.mouse.getPosition())
-        if mx == nil or my == nil then return end
-
-        local hand_position = card_position_calculator.CalculateHandPosition(current_state)
-
-        -- 2. Loop BACKWARDS through the hand (Top card first)
-        for i = #current_state.hand, 1, -1 do
-            local card_x = hand_position.X + (i - 1) * card_dimensions.CARD_SPACING
-
-            if CheckCollision(mx, my, card_x, hand_position.Y, card_dimensions.CARD_WIDTH, card_dimensions.CARD_HEIGHT) then
-                current_state.hand[i].hover_is_active = true
-                break -- We found the top-most card, stop checking!
-            else
-                current_state.hand[i].hover_is_active = false
-            end
-        end
+        checkHandHover(current_state)
+        checkBoardHover(current_state)
     end
     return current_state
 end
@@ -203,9 +237,7 @@ function GameManager.handle_input(game_state, type, ...)
     local next_state = game_state
     local args = { ... }
 
-    for i = 1, #next_state.hand do
-        next_state.hand[i].hover_is_active = false
-    end
+    resetHover(next_state)
 
     if (next_state.player_input_active) then
         if type == "keypressed" then

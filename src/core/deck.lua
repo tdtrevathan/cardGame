@@ -1,16 +1,16 @@
 -- MyCardGame/src/core/deck.lua
-
 local Card = require("src.core.card")
+local card_image_locations = require("src.game.constants.card_image_locations")
 
 local Deck = {}
 
 local function createHardCodedDeck(deck_data)
-        local cardnames = {
+    local cardnames = {
         "cattle", "cowboy", "shotgun", "saloon_girl", "lowly_outlaw", "shabby_horse", "six_shooter", "snake_pit", "back_of_card"
     }
 
     for _, name in ipairs(cardnames) do
-        local image_path = string.format("src/assets/images/cards/%s.png", name)
+        local image_path = string.format(card_image_locations.CARD_IMAGES_ROOT .. "%s.png", name)
         local new_card = Card.create(image_path)
         table.insert(deck_data.cards, new_card)
     end
