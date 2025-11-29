@@ -19,44 +19,36 @@ function UI.DrawImageToBox(image, x, y, targetWidth, targetHeight)
 end
 
 function UI.DrawCard(card_data, x, y)
+
+    local image_to_draw = nil
+
     if card_data.is_face_up then
-        if card_data.image then
-            -- added hardcoded scalling temporarily
-            if card_data.hover_is_active then
-                UI.DrawImageToBox(card_data.image, 
-                    x + card_dimensions.HOVER_X_OFFSET,
-                    y + card_dimensions.HOVER_Y_OFFSET,
-                    card_dimensions.CARD_WIDTH * 3,
-                    card_dimensions.CARD_HEIGHT * 3)
-            else
-                UI.DrawImageToBox(card_data.image, 
-                    x,
-                    y,
-                    card_dimensions.CARD_WIDTH,
-                    card_dimensions.CARD_HEIGHT)
-            end
-        else
-            -- Fallback drawing
-            love.graphics.setColor(0.8, 0.8, 0.8)
-            love.graphics.rectangle("fill", x, y, 70, 100)
-            love.graphics.setColor(0, 0, 0)
-            love.graphics.printf(card_data.rank .. "\n" .. card_data.suit, x + 5, y + 5, 60, "center")
-        end
+        image_to_draw = card_data.image
     else
+        image_to_draw = card_data.back_image
+    end
+    if image_to_draw then
         if card_data.hover_is_active then
-            UI.DrawImageToBox(card_data.image,
+            UI.DrawImageToBox(image_to_draw,
                 x + card_dimensions.HOVER_X_OFFSET,
                 y + card_dimensions.HOVER_Y_OFFSET,
-                card_dimensions.CARD_WIDTH * 3,
-                card_dimensions.CARD_HEIGHT * 3)
+                card_dimensions.CARD_WIDTH * card_dimensions.HOVER_SCALAR,
+                card_dimensions.CARD_HEIGHT * card_dimensions.HOVER_SCALAR)
         else
-            UI.DrawImageToBox(card_data.back_image,
+            UI.DrawImageToBox(image_to_draw,
                 x,
                 y,
                 card_dimensions.CARD_WIDTH,
                 card_dimensions.CARD_HEIGHT)
         end
+    else
+        -- Fallback drawing
+        love.graphics.setColor(0.8, 0.8, 0.8)
+        love.graphics.rectangle("fill", x, y, 70, 100)
+        love.graphics.setColor(0, 0, 0)
+        love.graphics.printf(card_data.rank .. "\n" .. card_data.suit, x + 5, y + 5, 60, "center")
     end
+
     love.graphics.setColor(1, 1, 1) -- Reset color
 end
 

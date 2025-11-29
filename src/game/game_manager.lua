@@ -163,23 +163,7 @@ local function checkHandHover(current_state)
     end
 end
 
-local function checkBoardHover(current_state)
-    -- 1. Get Mouse Position converted to Virtual Resolution
-    -- push:toGame returns nil if mouse is in the black bars, so we default to 0,0
-    local mx, my = push:toGame(love.mouse.getPosition())
-    if mx == nil or my == nil then return end
-
-    local hover_row, hover_col = Utils.get_board_slot_at_position(current_state, mx, my)
-
-    if hover_row and hover_col and current_state.board[hover_row][hover_col] then
-        current_state.board[hover_row][hover_col].hover_is_active = true
-    end
-end
-
-local function resetHover(next_state)
-    for i = 1, #next_state.hand do
-        next_state.hand[i].hover_is_active = false
-    end
+local function resetBoardHover(next_state)
     for r = 1, board_dimensions.NUM_ROWS do
         for c = 1, board_dimensions.NUM_COLS do
             local card_in_slot = next_state.board[r][c]
@@ -188,6 +172,32 @@ local function resetHover(next_state)
                 next_state.board[r][c].hover_is_active = false
             end
         end
+    end
+end
+
+local function resetHandHover(next_state)
+    for i = 1, #next_state.hand do
+        next_state.hand[i].hover_is_active = false
+    end
+end
+
+local function resetHover(next_state)
+    resetHandHover(next_state)
+    resetBoardHover(next_state)
+end
+
+local function checkBoardHover(current_state)
+    -- 1. Get Mouse Position converted to Virtual Resolution
+    -- push:toGame returns nil if mouse is in the black bars, so we default to 0,0
+    local mx, my = push:toGame(love.mouse.getPosition())
+    if mx == nil or my == nil then return end
+
+    resetBoardHover(current_state)
+
+    local hover_row, hover_col = Utils.get_board_slot_at_position(current_state, mx, my)
+
+    if hover_row and hover_col and current_state.board[hover_row][hover_col] then
+        current_state.board[hover_row][hover_col].hover_is_active = true
     end
 end
 --==============================================================================

@@ -1,3 +1,5 @@
+local board_dimensions = require("src.game.constants.board_dimensions")
+
 local Utils = {}
 
 --[[
@@ -28,9 +30,9 @@ end
 -- Add this to src/game/utils.lua
 
 function Utils.get_board_slot_at_position(game_state, x, y)
-    local cell_width = 90
-    local cell_height = 120
-    local cell_margin = 15
+    local cell_width = board_dimensions.CELL_WIDTH
+    local cell_height = board_dimensions.CELL_HEIGHT
+    local cell_margin = board_dimensions.CELL_MARGIN
     local num_rows = #game_state.board
     local num_cols = #game_state.board[1]
     
