@@ -10,16 +10,15 @@ local MainMenuDisplayHandler = require("src.game.display.main_menu_display_handl
 local CardViewDisplayHandler = require("src.game.display.card_view_display_handler")
 local card_dimensions = require("src.game.constants.card_dimensions")
 local board_dimensions = require("src.game.constants.board_dimensions")
-local card_position_calculator = require("src.game.card_position_calculator")
-local push = require('src.core.push')
+local hover_handler = require('src.game.display.hover_handler')
 
 
 --==============================================================================
 -- Private Helper Functions
 --==============================================================================
 local function get_card_at_position(game_state, x, y)
-    local hand_y = love.graphics.getHeight() - 130
-    local card_spacing = 80
+    local hand_y = love.graphics.getHeight() + card_dimensions.HAND_Y_OFFSET
+    local card_spacing = card_dimensions.CARD_SPACING
     local total_hand_width = (#game_state.hand * card_spacing) - (card_spacing - card_dimensions.CARD_WIDTH)
     local hand_x_start = (love.graphics.getWidth() - total_hand_width) / 2
 
@@ -142,64 +141,6 @@ local function handleEnemyTurn(next_state)
     next_state.player_input_active = true
 end
 
-local function checkHandHover(current_state)
-    -- 1. Get Mouse Position converted to Virtual Resolution
-    -- push:toGame returns nil if mouse is in the black bars, so we default to 0,0
-    local mx, my = push:toGame(love.mouse.getPosition())
-    if mx == nil or my == nil then return end
-
-    local hand_position = card_position_calculator.CalculateHandPosition(current_state)
-
-    -- 2. Loop BACKWARDS through the hand (Top card first)
-    for i = #current_state.hand, 1, -1 do
-        local card_x = hand_position.X + (i - 1) * card_dimensions.CARD_SPACING
-
-        if CheckCollision(mx, my, card_x, hand_position.Y, card_dimensions.CARD_WIDTH, card_dimensions.CARD_HEIGHT) then
-            current_state.hand[i].hover_is_active = true
-            break     -- We found the top-most card, stop checking!
-        else
-            current_state.hand[i].hover_is_active = false
-        end
-    end
-end
-
-local function resetBoardHover(next_state)
-    for r = 1, board_dimensions.NUM_ROWS do
-        for c = 1, board_dimensions.NUM_COLS do
-            local card_in_slot = next_state.board[r][c]
-
-            if card_in_slot then
-                next_state.board[r][c].hover_is_active = false
-            end
-        end
-    end
-end
-
-local function resetHandHover(next_state)
-    for i = 1, #next_state.hand do
-        next_state.hand[i].hover_is_active = false
-    end
-end
-
-local function resetHover(next_state)
-    resetHandHover(next_state)
-    resetBoardHover(next_state)
-end
-
-local function checkBoardHover(current_state)
-    -- 1. Get Mouse Position converted to Virtual Resolution
-    -- push:toGame returns nil if mouse is in the black bars, so we default to 0,0
-    local mx, my = push:toGame(love.mouse.getPosition())
-    if mx == nil or my == nil then return end
-
-    resetBoardHover(current_state)
-
-    local hover_row, hover_col = Utils.get_board_slot_at_position(current_state, mx, my)
-
-    if hover_row and hover_col and current_state.board[hover_row][hover_col] then
-        current_state.board[hover_row][hover_col].hover_is_active = true
-    end
-end
 --==============================================================================
 -- Public GameManager Module
 --==============================================================================
@@ -215,14 +156,16 @@ function GameManager.update(game_state)
         current_state.current_drag_x = mouse_x - current_state.drag_offset_x
         current_state.current_drag_y = mouse_y - current_state.drag_offset_y
     else
-        checkHandHover(current_state)
-        checkBoardHover(current_state)
+        hover_handler.CheckHandHover(current_state)
+        hover_handler.CheckBoardHover(current_state)
     end
     return current_state
 end
 
 function GameManager.draw(game_state)
     love.graphics.clear(0.2, 0.2, 0.2)
+    local card_width = card_dimensions.CARD_WIDTH
+    local card_height = card_dimensions.CARD_HEIGHT
 
     if game_state.current_view == SrceenViews.GAME_SCREEN then
         UI.DrawBoard(game_state)
@@ -231,10 +174,12 @@ function GameManager.draw(game_state)
         if game_state.dragging_card then
             UI.DrawCard(game_state.dragging_card,
                 game_state.current_drag_x,
-                game_state.current_drag_y)
+                game_state.current_drag_y,
+                card_width,
+                card_height)
         end
     elseif game_state.current_view == SrceenViews.CARD_SCREEN then
-        CardViewDisplayHandler.DisplayCardView()
+        CardViewDisplayHandler.DisplayCardScreen()
     elseif game_state.current_view == SrceenViews.MAIN_MENU then
         MainMenuDisplayHandler.DisplayMainMenu()
     end
@@ -247,7 +192,7 @@ function GameManager.handle_input(game_state, type, ...)
     local next_state = game_state
     local args = { ... }
 
-    resetHover(next_state)
+    hover_handler.ResetHover(next_state)
 
     if (next_state.player_input_active) then
         if type == "keypressed" then
@@ -271,11 +216,9 @@ function GameManager.handle_input(game_state, type, ...)
                     handleEnemyTurn(next_state)
                 end
             end
-        end
-        if type == "mousepressed" then
+        elseif type == "mousepressed" then
             handleMousePress(game_state, type, ...)
-        end
-        if type == "mousereleased" then
+        elseif type == "mousereleased" then
             handleMouseRelease(game_state, type, ...)
         end
     end

@@ -4,7 +4,8 @@ local card_dimensions = {
     CARD_SPACING = 80, -- Spacing between the start of each card
     HOVER_X_OFFSET = -100,
     HOVER_Y_OFFSET = -220,
-    HOVER_SCALAR = 3
+    HOVER_SCALAR = 3,
+    HAND_Y_OFFSET = -150
 }
 
 return card_dimensions

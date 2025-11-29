@@ -2,7 +2,7 @@ local FontManager = require("src.game.display.font_manager")
 
 local CardViewDisplayHandler= {}
 
-function CardViewDisplayHandler.DisplayCardView()
+function CardViewDisplayHandler.DisplayCardScreen()
 -- 1. Set background/general color
     love.graphics.setColor(1, 1, 1, 1) 
 
