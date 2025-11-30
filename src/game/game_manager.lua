@@ -8,8 +8,8 @@ local UI = require("src.game.UI")
 local SrceenViews = require("src.game.constants.screen_views")
 local MainMenuDisplayHandler = require("src.game.display.main_menu_display_handler")
 local CardViewDisplayHandler = require("src.game.display.card_view_display_handler")
-local card_dimensions = require("src.game.constants.card_dimensions")
-local board_dimensions = require("src.game.constants.board_dimensions")
+local CardDimensions = require("src.game.constants.card_dimensions")
+local BoardDimensions = require("src.game.constants.board_dimensions")
 local MouseButtons = require("src.game.constants.mouse_buttons")
 local hover_handler = require('src.game.display.hover_handler')
 
@@ -18,16 +18,16 @@ local hover_handler = require('src.game.display.hover_handler')
 -- Private Helper Functions
 --==============================================================================
 local function get_card_at_position(game_state, x, y)
-    local hand_y = love.graphics.getHeight() + card_dimensions.HAND_Y_HOVER_OFFSET
-    local card_spacing = card_dimensions.CARD_SPACING
-    local total_hand_width = (#game_state.hand * card_spacing) - (card_spacing - card_dimensions.CARD_WIDTH)
+    local hand_y = love.graphics.getHeight() + CardDimensions.HAND_Y_HOVER_OFFSET
+    local card_spacing = CardDimensions.CARD_SPACING
+    local total_hand_width = (#game_state.hand * card_spacing) - (card_spacing - CardDimensions.CARD_WIDTH)
     local hand_x_start = (love.graphics.getWidth() - total_hand_width) / 2
 
     for i, card_data in ipairs(game_state.hand) do
         local card_x = hand_x_start + (i - 1) * card_spacing
         -- Check if the coordinates (x, y) are within the card's bounding box
-        if x >= card_x and x < card_x + card_dimensions.CARD_WIDTH and
-            y >= hand_y and y < hand_y + card_dimensions.CARD_HEIGHT then
+        if x >= card_x and x < card_x + CardDimensions.CARD_WIDTH and
+            y >= hand_y and y < hand_y + CardDimensions.CARD_HEIGHT then
             return card_data, i, card_x, hand_y
         end
     end
@@ -63,6 +63,7 @@ local function handleMousePress(game_state, type, ...)
         end
     end
 end
+
 local function handleMouseRelease(game_state, type, ...)
     local next_state = game_state
     local args = { ... }
@@ -102,7 +103,7 @@ local function handleDrawCard(next_state)
         local dealt_card = Deck.deal_card(next_state.deck)
         if dealt_card then
             -- Load the image when the card is dealt
-            Card.load_image(dealt_card)
+            Card.LoadImage(dealt_card)
             -- Make sure the card is face up to be visible in the hand
             dealt_card.is_face_up = true
             table.insert(next_state.hand, dealt_card)
@@ -123,12 +124,12 @@ local function handleEnemyTurn(next_state)
     --
     next_state.player_input_active = false
 
-    for r = 1, board_dimensions.NUM_ROWS do
-        for c = 1, board_dimensions.NUM_COLS do
+    for r = 1, BoardDimensions.NUM_ROWS do
+        for c = 1, BoardDimensions.NUM_COLS do
             if not next_state.board[r][c] then
-                local enemy_card = Card.create("src/assets/images/cards/lowly_outlaw.png")
+                local enemy_card = Card.Create("src/assets/images/cards/lowly_outlaw.png")
                 enemy_card.is_face_up = false
-                Card.load_image(enemy_card)
+                Card.LoadImage(enemy_card)
 
                 next_state.board[r][c] = enemy_card
 
@@ -164,8 +165,8 @@ end
 
 function GameManager.draw(game_state)
     love.graphics.clear(0.2, 0.2, 0.2)
-    local card_width = card_dimensions.CARD_WIDTH
-    local card_height = card_dimensions.CARD_HEIGHT
+    local card_width = CardDimensions.CARD_WIDTH
+    local card_height = CardDimensions.CARD_HEIGHT
 
     if game_state.current_view == SrceenViews.GAME_SCREEN then
         UI.DrawBoard(game_state)

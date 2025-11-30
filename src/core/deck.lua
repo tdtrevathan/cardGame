@@ -1,19 +1,48 @@
 -- MyCardGame/src/core/deck.lua
 local Card = require("src.core.card")
-local card_image_locations = require("src.game.constants.card_image_locations")
+local cardImageLocations = require("src.game.constants.card_image_locations")
+local characterCards = require("src.game.constants.card_data.character_card_data")
+local equipmentCards = require("src.game.constants.card_data.equipment_card_data")
+local terrainCards = require("src.game.constants.card_data.terrain_card_data")
 
 local Deck = {}
 
-local function createHardCodedDeck(deck_data)
-    local cardnames = {
-        "cattle", "cowboy", "shotgun", "saloon_girl", "lowly_outlaw", "shabby_horse", "six_shooter", "snake_pit", "back_of_card"
-    }
+local function formatFileString(name)
+    return string.format(cardImageLocations.CARD_IMAGES_ROOT .. "%s.png", name)
+end
 
-    for _, name in ipairs(cardnames) do
-        local image_path = string.format(card_image_locations.CARD_IMAGES_ROOT .. "%s.png", name)
-        local new_card = Card.create(image_path)
+local function mergeCardCollections(first_collection, second_collection)
+    local merged_collection = {}
+
+    for i = 1, #first_collection do
+        table.insert(merged_collection, first_collection[i])
+    end
+    for i = 1, #second_collection do
+        table.insert(merged_collection, second_collection[i])
+    end
+
+    return merged_collection
+end
+
+local function createCardCollection()
+    local cardCollection = characterCards.data;
+    cardCollection = mergeCardCollections(cardCollection, equipmentCards.data)
+    cardCollection = mergeCardCollections(cardCollection, terrainCards.data)
+    return cardCollection
+end
+
+local function createCards(deck_data, cardCollection)
+    for i = 1, #cardCollection do
+        local card = cardCollection[i]
+        local image_path = formatFileString(card.NAME)
+        local new_card = Card.Create(image_path, card.TYPE)
         table.insert(deck_data.cards, new_card)
     end
+end
+
+local function createDeck(deck_data)
+    local cardCollection = createCardCollection()
+    createCards(deck_data, cardCollection)
 end
 
 -- Creates an empty deck data table
@@ -25,7 +54,7 @@ end
 function Deck.populate(deck_data)
     deck_data.cards = {} -- Clear existing cards
 
-    createHardCodedDeck(deck_data)
+    createDeck(deck_data)
 end
 
 -- Shuffles the cards in the deck table.
