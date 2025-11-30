@@ -58,7 +58,10 @@ function UI.DrawBoard(game_state)
     local card_offset_y = (board_dimensions.CELL_HEIGHT - card_dimensions.CARD_HEIGHT) / 2
     local card_width = card_dimensions.CARD_WIDTH
     local card_height = card_dimensions.CARD_HEIGHT
-    
+    local hover_card = nil
+    local hover_cell_x = nil
+    local hover_cell_y = nil
+
     for r = 1, board_dimensions.NUM_ROWS do
         for c = 1, board_dimensions.NUM_COLS do
             local card_in_slot = game_state.board[r][c]
@@ -72,10 +75,9 @@ function UI.DrawBoard(game_state)
                 local final_height = card_height
 
                 if card_in_slot.hover_is_active and card_in_slot.is_face_up then
-                    final_offset_x = final_offset_x + card_dimensions.HOVER_X_OFFSET
-                    final_offset_y = final_offset_y + card_dimensions.HOVER_Y_OFFSET
-                    final_width = final_width * card_dimensions.HOVER_SCALAR
-                    final_height = final_height * card_dimensions.HOVER_SCALAR
+                    hover_card = card_in_slot
+                    hover_cell_x = cell_x
+                    hover_cell_y = cell_y
                 end
                 UI.DrawCard(
                     card_in_slot,
@@ -90,6 +92,19 @@ function UI.DrawBoard(game_state)
             end
         end
     end
+    if hover_card then
+        local hover_offset_x = card_offset_x + card_dimensions.HOVER_X_OFFSET
+        local hover_offset_y = card_offset_y + card_dimensions.HOVER_Y_OFFSET
+        local hover_width = card_width * card_dimensions.HOVER_SCALAR
+        local hover_height = card_height * card_dimensions.HOVER_SCALAR
+
+        UI.DrawCard(
+            hover_card,
+            hover_cell_x + hover_offset_x,
+            hover_cell_y + hover_offset_y,
+            hover_width,
+            hover_height)
+    end
 end
 
 function UI.DrawHand(game_state)
@@ -97,6 +112,9 @@ function UI.DrawHand(game_state)
     local card_height = card_dimensions.CARD_HEIGHT
     local card_offset_x = 0
     local card_offset_y = 0
+    local hover_card = nil
+    local hover_cell_x = nil
+    local hover_cell_y = nil
 
     if game_state.hand == 0 then return end 
 
@@ -110,11 +128,10 @@ function UI.DrawHand(game_state)
         local final_offset_y = card_offset_y
         local final_width = card_width
         local final_height = card_height
-        if card_data.hover_is_active then
-            final_offset_x = final_offset_x + card_dimensions.HOVER_X_OFFSET
-            final_offset_y = final_offset_y + card_dimensions.HAND_Y_HOVER_OFFSET
-            final_width = final_width * card_dimensions.HOVER_SCALAR
-            final_height = final_height * card_dimensions.HOVER_SCALAR
+        if card_data.hover_is_active and card_data.is_face_up then
+            hover_card = card_data
+            hover_cell_x = card_x
+            hover_cell_y = hand_position.Y
         end
         UI.DrawCard(
             card_data,
@@ -122,6 +139,19 @@ function UI.DrawHand(game_state)
             hand_position.Y + final_offset_y,
             final_width,
             final_height)
+    end
+    if hover_card then
+        local hover_offset_x = card_offset_x + card_dimensions.HOVER_X_OFFSET
+        local hover_offset_y = card_offset_y + card_dimensions.HAND_Y_HOVER_OFFSET
+        local hover_width = card_width * card_dimensions.HOVER_SCALAR
+        local hover_height = card_height * card_dimensions.HOVER_SCALAR
+
+        UI.DrawCard(
+            hover_card,
+            hover_cell_x + hover_offset_x,
+            hover_cell_y + hover_offset_y,
+            hover_width,
+            hover_height)
     end
 end
 
