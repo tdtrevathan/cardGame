@@ -10,6 +10,7 @@ local MainMenuDisplayHandler = require("src.game.display.main_menu_display_handl
 local CardViewDisplayHandler = require("src.game.display.card_view_display_handler")
 local card_dimensions = require("src.game.constants.card_dimensions")
 local board_dimensions = require("src.game.constants.board_dimensions")
+local MouseButtons = require("src.game.constants.mouse_buttons")
 local hover_handler = require('src.game.display.hover_handler')
 
 
@@ -39,18 +40,17 @@ local function handleMousePress(game_state, type, ...)
     local x, y, button = args[1], args[2], args[3]
 
     -- Right-Click Logic: Set the card for preview
-    if button == 2 and next_state.current_view == SrceenViews.GAME_SCREEN then
-        local card, _, _, _ = get_card_at_position(next_state, x, y)
+    if button == MouseButtons.RIGHT_CLICK and next_state.current_view == SrceenViews.GAME_SCREEN then
+        local clicked_row, clicked_col = Utils.get_board_slot_at_position(next_state, x, y)
+        local card = next_state.board[clicked_row][clicked_col]
+
         if card then
-            -- Set the card to be previewed on the right-click press
-            next_state.preview_card = card
-            -- Crucially, since the right-click *starts* the preview,
-            -- we stop here and don't proceed to the dragging logic.
+            card.is_face_up = true
             return next_state
         end
     end
 
-    if button == 1 and next_state.current_view == SrceenViews.GAME_SCREEN then
+    if button == MouseButtons.LEFT_CLICK and next_state.current_view == SrceenViews.GAME_SCREEN then
         local card, index, card_x, card_y = get_card_at_position(next_state, x, y)
         if card then
             -- Start dragging
@@ -69,7 +69,7 @@ local function handleMouseRelease(game_state, type, ...)
 
     local x, y, button = args[1], args[2], args[3]
 
-    if button == 1 and next_state.dragging_card then
+    if button == MouseButtons.LEFT_CLICK and next_state.dragging_card then
         local card = next_state.dragging_card
         local card_dropped = false
 
