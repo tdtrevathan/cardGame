@@ -17,7 +17,7 @@ local hover_handler = require('src.game.display.hover_handler')
 -- Private Helper Functions
 --==============================================================================
 local function get_card_at_position(game_state, x, y)
-    local hand_y = love.graphics.getHeight() + card_dimensions.HAND_Y_OFFSET
+    local hand_y = love.graphics.getHeight() + card_dimensions.HAND_Y_HOVER_OFFSET
     local card_spacing = card_dimensions.CARD_SPACING
     local total_hand_width = (#game_state.hand * card_spacing) - (card_spacing - card_dimensions.CARD_WIDTH)
     local hand_x_start = (love.graphics.getWidth() - total_hand_width) / 2

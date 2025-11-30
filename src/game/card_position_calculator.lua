@@ -1,9 +1,10 @@
 local card_dimensions = require("src.game.constants.card_dimensions")
+local hand_dimensions = require("src.game.constants.hand_dimensions")
 
 local CardPositionCalculator = {}
 
 function CardPositionCalculator.CalculateHandPosition(game_state)
-    local hand_y = love.graphics.getHeight() - 130 -- Position hand near the bottom                 
+    local hand_y = love.graphics.getHeight() + hand_dimensions.HAND_Y_OFFSET              
 
     -- Calculate the total width of the hand to center it
     local total_hand_width = (#game_state.hand * card_dimensions.CARD_SPACING) - (card_dimensions.CARD_SPACING - card_dimensions.CARD_WIDTH)

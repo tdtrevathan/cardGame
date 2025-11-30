@@ -4,6 +4,8 @@ local card_position_calculator = require("src.game.card_position_calculator")
 
 local UI = {}
 
+
+
 -- This is the sustainable math you are looking for.
 -- It calculates the scale needed to squash/stretch ANY image into ANY box.
 function UI.DrawImageToBox(image, x, y, targetWidth, targetHeight)
@@ -64,18 +66,23 @@ function UI.DrawBoard(game_state)
             local cell_y = grid_offset_y + (r - 1) * (board_dimensions.CELL_HEIGHT + board_dimensions.CELL_MARGIN)
             
             if card_in_slot then
-                if card_in_slot.hover_is_active then
-                    card_offset_x = card_offset_x + card_dimensions.HOVER_X_OFFSET
-                    card_offset_y = card_offset_y + card_dimensions.HAND_Y_OFFSET
-                    card_width = card_width * card_dimensions.HOVER_SCALAR
-                    card_height = card_height * card_dimensions.HOVER_SCALAR
+                local final_offset_x = card_offset_x
+                local final_offset_y = card_offset_y
+                local final_width = card_width
+                local final_height = card_height
+
+                if card_in_slot.hover_is_active and card_in_slot.is_face_up then
+                    final_offset_x = final_offset_x + card_dimensions.HOVER_X_OFFSET
+                    final_offset_y = final_offset_y + card_dimensions.HOVER_Y_OFFSET
+                    final_width = final_width * card_dimensions.HOVER_SCALAR
+                    final_height = final_height * card_dimensions.HOVER_SCALAR
                 end
                 UI.DrawCard(
                     card_in_slot,
-                    cell_x + card_offset_x,
-                    cell_y + card_offset_y,
-                    card_width,
-                    card_height)
+                    cell_x + final_offset_x,
+                    cell_y + final_offset_y,
+                    final_width,
+                    final_height)
             else
                 love.graphics.setColor(1, 1, 1, 0.2)
                 love.graphics.rectangle("line", cell_x, cell_y, board_dimensions.CELL_WIDTH, board_dimensions.CELL_HEIGHT)
@@ -99,18 +106,22 @@ function UI.DrawHand(game_state)
         local card_x = hand_position.X + (i - 1) * card_dimensions.CARD_SPACING
         -- Since Card.draw already exists, we can just call it with the right data and position
 
+        local final_offset_x = card_offset_x
+        local final_offset_y = card_offset_y
+        local final_width = card_width
+        local final_height = card_height
         if card_data.hover_is_active then
-            card_offset_x = card_offset_x + card_dimensions.HOVER_X_OFFSET
-            card_offset_y = card_offset_y + card_dimensions.HAND_Y_OFFSET
-            card_width = card_width * card_dimensions.HOVER_SCALAR
-            card_height = card_height * card_dimensions.HOVER_SCALAR
+            final_offset_x = final_offset_x + card_dimensions.HOVER_X_OFFSET
+            final_offset_y = final_offset_y + card_dimensions.HAND_Y_HOVER_OFFSET
+            final_width = final_width * card_dimensions.HOVER_SCALAR
+            final_height = final_height * card_dimensions.HOVER_SCALAR
         end
         UI.DrawCard(
             card_data,
-            card_x + card_offset_x,
-            hand_position.Y + card_offset_y,
-            card_width,
-            card_height)
+            card_x + final_offset_x,
+            hand_position.Y + final_offset_y,
+            final_width,
+            final_height)
     end
 end
 
